@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -6,6 +7,7 @@ using Project.Models;
 
 namespace Project.Controllers
 {
+    [Authorize]
     public class AdminController : Controller
     {
         EcommerceContext dbcontext = new EcommerceContext();
@@ -19,7 +21,7 @@ namespace Project.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Category(Category c)
+        public IActionResult Category(CategoryValidation c)
         {
             if (!ModelState.IsValid)
             {
@@ -31,8 +33,9 @@ namespace Project.Controllers
             {
                 ModelState.AddModelError(nameof(c.CateName), "Category already exist");
             }
-
-            dbcontext.Categories.Add(c);
+            var dc = new Category();
+            dc.CateName = c.CateName;
+            dbcontext.Categories.Add(dc);
             dbcontext.SaveChanges();
             TempData["Success"] = "Category Added Successfully";
             return Redirect("CatList");
